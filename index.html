@@ -64,7 +64,23 @@
 #home .henriWeekLesson{display:block;font-size:11px;color:var(--muted);opacity:.9}
 #home .henriWeekNote{display:block;font-size:11px;color:#9b6434;font-weight:650}
 </style>
-</head>
+<script>
+/* Isolate Henri V2 data from the original refonte on the same GitHub Pages origin. */
+(function(){
+ const get=Storage.prototype.getItem,set=Storage.prototype.setItem,remove=Storage.prototype.removeItem;
+ const oldPrefix='previewHenriSlate:',newPrefix='previewHenriV2:';
+ const translate=k=>typeof k==='string'&&k.startsWith(oldPrefix)?newPrefix+k.slice(oldPrefix.length):k;
+ const doneKey=newPrefix+'initialCopyDone';
+ if(!get.call(localStorage,doneKey)){
+   const keys=[];for(let i=0;i<localStorage.length;i++){const k=localStorage.key(i);if(k&&k.startsWith(oldPrefix))keys.push(k);}
+   for(const k of keys){const to=translate(k);if(get.call(localStorage,to)===null){try{set.call(localStorage,to,get.call(localStorage,k))}catch(e){console.warn('Henri V2 migration',e);}}}
+   set.call(localStorage,doneKey,'1');
+ }
+ Storage.prototype.getItem=function(k){return get.call(this,this===localStorage?translate(k):k)};
+ Storage.prototype.setItem=function(k,v){return set.call(this,this===localStorage?translate(k):k,v)};
+ Storage.prototype.removeItem=function(k){return remove.call(this,this===localStorage?translate(k):k)};
+})();
+</script></head>
 <body>
 <div class="app">
 <header class="top"><div class="topin"><button class="brandHome" onclick="goHome()" aria-label="Henri, retour au calendrier"><span class="brandMark" aria-hidden="true">h</span><span><span class="brand">Henri</span><span class="brandCaption">Éducation physique</span></span></button><button id="settingsButton" class="pill" onclick="go('settings')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/><circle cx="9" cy="7" r="2" fill="var(--bg,#fff)"/><circle cx="16" cy="12" r="2" fill="var(--bg,#fff)"/><circle cx="10" cy="17" r="2" fill="var(--bg,#fff)"/></svg><span>Paramètres</span></button></div></header>
